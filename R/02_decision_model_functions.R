@@ -53,7 +53,7 @@ create_tp <- function(l_params_all, err_stop = FALSE, verbose = FALSE,
     
     ### Compute Transition proability 
     a_P <- sapply(seq_along(v_age_names), 
-                  function(x) msm::MatrixExp(a_G[,,x]), 
+                  function(x) msm::MatrixExp(mat = a_G[,,x], t = t_scale), 
                   simplify="array")
     
       
