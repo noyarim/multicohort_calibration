@@ -28,22 +28,35 @@ create_tpm <- function(l_params_all, err_stop = FALSE, verbose = FALSE,
     
     # From ND ----
     ## to CD (adjusted by treatment status) ----
-    v_r_ND_CD <- c(rep(r_ND_CD_5, 5), )
+    v_r_ND_CD <- c(rep(r_ND_CD_16, 4),rep(r_ND_CD_20, 4),rep(r_ND_CD_24, 4),
+                   rep(r_ND_CD_28, 4),rep(r_ND_CD_32, 4),rep(r_ND_CD_36, 4),
+                   rep(r_ND_CD_40, 4),rep(r_ND_CD_44, 4),rep(r_ND_CD_48, 4),
+                   rep(r_ND_CD_52, 4),rep(r_ND_CD_56, 4),rep(r_ND_CD_60, 4),
+                   rep(r_ND_CD_64, 4),rep(r_ND_CD_68, 4),rep(r_ND_CD_72, 29))
     v_r_ND_CD_Rx <- v_r_ND_CD*(1-Trt) + # No treatment
       v_r_ND_CD*hr_ND_CD_Rx*(Trt)     # Treatment
     ## To Death ----
-    v_r_ND_Death <- 
+    v_r_ND_Death <- c(rep(r_ND_Death,85))
       
     # From CD  ----
     ## to FD ----
-    v_r_CD_FD <- 
+    v_r_CD_FD <- c(rep(r_CD_FD_16, 4),rep(r_CD_FD_20, 4),rep(r_CD_FD_24, 4),
+                   rep(r_CD_FD_28, 4),rep(r_CD_FD_32, 4),rep(r_CD_FD_36, 4),
+                   rep(r_CD_FD_40, 4),rep(r_CD_FD_44, 4),rep(r_CD_FD_48, 4),
+                   rep(r_CD_FD_52, 4),rep(r_CD_FD_56, 4),rep(r_CD_FD_60, 4),
+                   rep(r_CD_FD_64, 4),rep(r_CD_FD_68, 4),rep(r_CD_FD_72, 29))
     ## To Death ----
+    v_r_CD_Death <- c(rep(r_CD_Death,85))
     
     # From FD  ----
     ## to CD ----
-    v_r_FD_CD <- 
+    v_r_FD_CD <- c(rep(r_FD_CD_16, 4),rep(r_FD_CD_20, 4),rep(r_FD_CD_24, 4),
+                   rep(r_FD_CD_28, 4),rep(r_FD_CD_32, 4),rep(r_FD_CD_36, 4),
+                   rep(r_FD_CD_40, 4),rep(r_FD_CD_44, 4),rep(r_FD_CD_48, 4),
+                   rep(r_FD_CD_52, 4),rep(r_FD_CD_56, 4),rep(r_FD_CD_60, 4),
+                   rep(r_FD_CD_64, 4),rep(r_FD_CD_68, 4),rep(r_FD_CD_72, 29))
     ## To Death ----
-    v_r_FD_Death <- 
+    v_r_FD_Death <- c(rep(r_FD_Death,85))
   
     ## Transition Intensity Array -------------------------------------------
     a_Q <- array(0, dim = list(n_states, n_states, n_cycles), 
@@ -51,14 +64,14 @@ create_tpm <- function(l_params_all, err_stop = FALSE, verbose = FALSE,
     
     ## Fill in array
     # From ND
-    a_Q["ND", "CD", ]   <- 
-    a_Q["ND", "Dead", ]  <- 
+    a_Q["ND", "CD", ]   <- v_r_ND_CD
+    a_Q["ND", "Dead", ]  <- v_r_ND_Death
     # From CD
-    a_Q["CD", "FD", ]   <- 
-    a_Q["CD", "Dead", ]    <- 
+    a_Q["CD", "FD", ]   <- v_r_CD_FD
+    a_Q["CD", "Dead", ]    <- v_r_CD_Death
     # From FD
-    a_Q["FD", "CD", ]   <- 
-    a_Q["FD", "Dead", ] <- 
+    a_Q["FD", "CD", ]   <- v_r_FD_CD
+    a_Q["FD", "Dead", ] <- v_r_FD_Death
     
     ### Compute transition probability array
     a_P <- sapply(seq_along(v_age_names), 
