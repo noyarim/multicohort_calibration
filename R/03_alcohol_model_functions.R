@@ -12,8 +12,6 @@
 run_drinkmc <- function(l_param_all, a_P, err_stop = FALSE, verbose = FALSE, 
                        Trt = FALSE
 ){
-  ### Depends on:
-  ###   - Package `msm` to compute the matrix exponential
   with(as.list(l_params_all), {
     # Sanity Check
     if (n_cycles_year <= 0) {
