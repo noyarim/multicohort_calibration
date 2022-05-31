@@ -109,8 +109,10 @@ calc_log_lik <- function(v.params){
   llik.overall <- numeric(n.samp)
   for(j in 1:n.samp) { # j=1
     jj <- tryCatch( { 
+      ###   Include other parameters  ###
+      v.params.full <- cbind(v.params, xxxxx)
       ###   Run model for parametr set "v.params" ###
-      model.res <- run_sick_sicker_markov(v.params[j, ])
+      model.res <- run_sick_sicker_markov(v.params.full[j, ])
       
       ###  Calculate log-likelihood of model outputs to targets  ###
       # TARGET 1: Survival ("Surv")

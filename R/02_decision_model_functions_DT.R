@@ -1,8 +1,8 @@
 #' Transition probability (TP) array for alcohol model
 #' 
 #' \code{create_tpm} generates the transition probability array for the alcohol 
-#' model. This code calculates discrete-time transition probability using matrix 
-#' exponential.
+#' model.This code calculate discrete-time transition probability by using simple
+#' exponential transformation of rates.
 #'
 #' @param l_params_all List with all parameters of decision model
 #' @param err_stop Logical variable to stop model run if set up as TRUE. Default = FALSE.
