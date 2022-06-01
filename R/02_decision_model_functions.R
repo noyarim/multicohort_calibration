@@ -34,11 +34,11 @@ create_tpm <- function(l_params_all, err_stop = FALSE, verbose = FALSE,
                    rep(r_ND_CD_28, 4),rep(r_ND_CD_32, 4),rep(r_ND_CD_36, 4),
                    rep(r_ND_CD_40, 4),rep(r_ND_CD_44, 4),rep(r_ND_CD_48, 4),
                    rep(r_ND_CD_52, 4),rep(r_ND_CD_56, 4),rep(r_ND_CD_60, 4),
-                   rep(r_ND_CD_64, 4),rep(r_ND_CD_68, 4),rep(r_ND_CD_72, 29))
+                   rep(r_ND_CD_64, 4),rep(r_ND_CD_68, 4),rep(r_ND_CD_72, 28))
     v_r_ND_CD_Rx <- v_r_ND_CD*(1-Trt) + # No treatment
       v_r_ND_CD*hr_ND_CD_Rx*(Trt)     # Treatment
     ## To Death ----
-    v_r_ND_Death <- c(rep(r_ND_Death,85))
+    v_r_ND_Death <- v_r_mort_year_age_cycle
       
     # From CD  ----
     ## to FD ----
@@ -46,9 +46,9 @@ create_tpm <- function(l_params_all, err_stop = FALSE, verbose = FALSE,
                    rep(r_CD_FD_28, 4),rep(r_CD_FD_32, 4),rep(r_CD_FD_36, 4),
                    rep(r_CD_FD_40, 4),rep(r_CD_FD_44, 4),rep(r_CD_FD_48, 4),
                    rep(r_CD_FD_52, 4),rep(r_CD_FD_56, 4),rep(r_CD_FD_60, 4),
-                   rep(r_CD_FD_64, 4),rep(r_CD_FD_68, 4),rep(r_CD_FD_72, 29))
+                   rep(r_CD_FD_64, 4),rep(r_CD_FD_68, 4),rep(r_CD_FD_72, 28))
     ## To Death ----
-    v_r_CD_Death <- c(rep(r_CD_Death,85))
+    v_r_CD_Death <- v_r_mort_year_age_cycle * v_hr_mort_age
     
     # From FD  ----
     ## to CD ----
@@ -56,9 +56,9 @@ create_tpm <- function(l_params_all, err_stop = FALSE, verbose = FALSE,
                    rep(r_FD_CD_28, 4),rep(r_FD_CD_32, 4),rep(r_FD_CD_36, 4),
                    rep(r_FD_CD_40, 4),rep(r_FD_CD_44, 4),rep(r_FD_CD_48, 4),
                    rep(r_FD_CD_52, 4),rep(r_FD_CD_56, 4),rep(r_FD_CD_60, 4),
-                   rep(r_FD_CD_64, 4),rep(r_FD_CD_68, 4),rep(r_FD_CD_72, 29))
+                   rep(r_FD_CD_64, 4),rep(r_FD_CD_68, 4),rep(r_FD_CD_72, 28))
     ## To Death ----
-    v_r_FD_Death <- c(rep(r_FD_Death,85))
+    v_r_FD_Death <- v_r_mort_year_age_cycle
   
     ## Transition Intensity Array -------------------------------------------
     a_Q <- array(0, dim = list(n_states, n_states, n_cycles), 
@@ -80,10 +80,9 @@ create_tpm <- function(l_params_all, err_stop = FALSE, verbose = FALSE,
     
     ### Compute transition probability array
     a_P <- sapply(seq_along(v_age_names), 
-                  function(x) msm::MatrixExp(mat = a_G[,,x], t = t_scale), 
+                  function(x) msm::MatrixExp(mat = a_Q[,,x], t = t_scale), 
                   simplify="array")
     
-      
     ## Check if Transition Probability array is valid
     # darthtools::check_transition_probability(a_P, err_stop = err_stop, 
     #                                          verbose = verbose)
