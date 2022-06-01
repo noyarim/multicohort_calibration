@@ -22,9 +22,12 @@ run_drinkmc <- function(l_param_all,  err_stop = FALSE, verbose = FALSE,
     a_P = create_tpm(l_params_all, err_stop = err_stop, verbose = verbose, 
                      Trt = Trt)
     # Discrete-time alcohol model -----------------------------------------------------
-    mc_trace <- matrix(0,nrow = n_cycles_year, ncol=n_states) # Markov trace matrix
+    mc_trace <- matrix(0,nrow = n_cycles, ncol=n_states) # Markov trace matrix
     
-    for (t in n_cycles_year){
+    # Initial state distribution
+    mc_trace[1,] <- c(1,rep(0,n_states-1))
+    
+    for (t in 1:(n_cycles-1)){
       mc_trace[t+1,] <- mc_trace[t,] %*% a_P[,,t]
     }
 
