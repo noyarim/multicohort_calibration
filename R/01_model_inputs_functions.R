@@ -6,13 +6,6 @@
 #' @param n_age_init Initial age of the cohort.
 #' @param n_age_max Oldest age of the cohort.
 #' @param n_cycles_year Number of cycles per year.
-#' @param r_Mets_DC Cancer mortality rate.
-#' @param r_BMneg_Mets Rate of recurrence in BM-negative patients.
-#' @param hr_BMpos_Mets Hazard ratio of recurrence in BM positive vs 
-#' BM negative patients.
-#' @param hr_BMpos_Mets_Rx Hazard ratio for disease recurrence among patients 
-#' with BM-positive under treatment versus BM-positive patients without 
-#' treatment.
 #' @return 
 #' List of all parameters 
 #' @export
@@ -25,53 +18,53 @@ load_params_init <- function(
   n_cycles_year = 1,
   ## Disease parameters
   # From never drinks to current drinkers
-  r_ND_CD_16 = 0.03870286*12,
-  r_ND_CD_20 = 0.03870286*12,
-  r_ND_CD_24 = 0.03870286*12,
-  r_ND_CD_28 = 0.03870286*12,
-  r_ND_CD_32 = 0.03870286*12,
-  r_ND_CD_36 = 0.03870286*12,
-  r_ND_CD_40 = 0.03870286*12,
-  r_ND_CD_44 = 0.03870286*12,
-  r_ND_CD_48 = 0.03870286*12,
-  r_ND_CD_52 = 0.03870286*12,
-  r_ND_CD_56 = 0.03870286*12,
-  r_ND_CD_60 = 0.03870286*12,
-  r_ND_CD_64 = 0.03870286*12,
-  r_ND_CD_68 = 0.03870286*12,
-  r_ND_CD_72 = 0.03870286*12,
+  r_ND_CD_16 = 0.005319545,
+  r_ND_CD_20 = 0.017262072,
+  r_ND_CD_24 = 0.029033276,
+  r_ND_CD_28 = 0.031688322,
+  r_ND_CD_32 = 0.029593226,
+  r_ND_CD_36 = 0.027498131,
+  r_ND_CD_40 = 0.030385763,
+  r_ND_CD_44 = 0.033207841,
+  r_ND_CD_48 = 0.030643089,
+  r_ND_CD_52 = 0.028565132,
+  r_ND_CD_56 = 0.024959867,
+  r_ND_CD_60 = 0.017192874,
+  r_ND_CD_64 = 0.009861861,
+  r_ND_CD_68 = 0.002936822,
+  r_ND_CD_72 = 0.002936822,
   # From current drinkers to former drinkers
-  r_CD_FD_16 = 0.03870286*12,
-  r_CD_FD_20 = 0.03870286*12,
-  r_CD_FD_24 = 0.03870286*12,
-  r_CD_FD_28 = 0.03870286*12,
-  r_CD_FD_32 = 0.03870286*12,
-  r_CD_FD_36 = 0.03870286*12,
-  r_CD_FD_40 = 0.03870286*12,
-  r_CD_FD_44 = 0.03870286*12,
-  r_CD_FD_48 = 0.03870286*12,
-  r_CD_FD_52 = 0.03870286*12,
-  r_CD_FD_56 = 0.03870286*12,
-  r_CD_FD_60 = 0.03870286*12,
-  r_CD_FD_64 = 0.03870286*12,
-  r_CD_FD_68 = 0.03870286*12,
-  r_CD_FD_72 = 0.03870286*12,  
+  r_CD_FD_16 = 0.486965245,
+  r_CD_FD_20 = 0.297701075,
+  r_CD_FD_24 = 0.272752696,
+  r_CD_FD_28 = 0.276080088,
+  r_CD_FD_32 = 0.279407481,
+  r_CD_FD_36 = 0.282734873,
+  r_CD_FD_40 = 0.591892876,
+  r_CD_FD_44 = 0.53503715,
+  r_CD_FD_48 = 0.709829619,
+  r_CD_FD_52 = 0.475097113,
+  r_CD_FD_56 = 0.324259987,
+  r_CD_FD_60 = 0.283815614,
+  r_CD_FD_64 = 0.255740758,
+  r_CD_FD_68 = 0.094477091,
+  r_CD_FD_72 = 0.094477091,
   # From former drinkers to current drinkers
-  r_FD_CD_16 = 0.03870286*12,
-  r_FD_CD_20 = 0.03870286*12,
-  r_FD_CD_24 = 0.03870286*12,
-  r_FD_CD_28 = 0.03870286*12,
-  r_FD_CD_32 = 0.03870286*12,
-  r_FD_CD_36 = 0.03870286*12,
-  r_FD_CD_40 = 0.03870286*12,
-  r_FD_CD_44 = 0.03870286*12,
-  r_FD_CD_48 = 0.03870286*12,
-  r_FD_CD_52 = 0.03870286*12,
-  r_FD_CD_56 = 0.03870286*12,
-  r_FD_CD_60 = 0.03870286*12,
-  r_FD_CD_64 = 0.03870286*12,
-  r_FD_CD_68 = 0.03870286*12,
-  r_FD_CD_72 = 0.03870286*12,
+  r_FD_CD_16 = 0.028825709,
+  r_FD_CD_20 = 0.070759726,
+  r_FD_CD_24 = 0.078689093,
+  r_FD_CD_28 = 0.048541515,
+  r_FD_CD_32 = 0.047456544,
+  r_FD_CD_36 = 0.053302603,
+  r_FD_CD_40 = 0.145325323,
+  r_FD_CD_44 = 0.08545241,
+  r_FD_CD_48 = 0.06100452,
+  r_FD_CD_52 = 0.028945683,
+  r_FD_CD_56 = 0.017866895,
+  r_FD_CD_60 = 0.012490663,
+  r_FD_CD_64 = 0.009642906,
+  r_FD_CD_68 = 0.004194026,
+  r_FD_CD_72 = 0.004194026,
   
   # Hazard ratio for starting drinking among never drinkers under treatment 
   # versus BM-negative patients without treatment.
@@ -188,7 +181,8 @@ load_params_init <- function(
 #' @param file String with the location and name of the file with mortality 
 #' data. If \code{NULL}, \code{v_r_mort_year_sex_age} will be used as default
 #' @return 
-#' A vector with mortality by year, age and sex.
+#' A vector with mortality by age in 2010
+#' A vector with hazard rate ratio with heavy drinking by age
 #' @export
 load_mort_data <- function(file = NULL){
   # Load mortality data from file
@@ -205,6 +199,30 @@ load_mort_data <- function(file = NULL){
   return(v_r_mort_year_age)
 }
 
+#' Load excess mortality data
+#'
+#' \code{load_mort_data} is used to load age-specific excess mortality due to
+#'  heavy drinking from .csv file into vector.
+#' @param file String with the location and name of the file with excess mortality 
+#' data. If \code{NULL}, \code{v_r_mort_year_sex_age} will be used as default
+#' @return 
+#' A vector with mortality by age in 2010
+#' A vector with hazard rate ratio with heavy drinking by age
+#' @export
+load_exmort_data <- function(file=NULL){
+    # Load excess mortality data from file
+    if(!is.null(file)) {
+      df_hrr_mort_age <- read.csv(file = file)}
+    else{
+      # df_r_mort_by_age <- all_cause_mortality
+      df_hrr_mort_age <- hrr_alcohol_age
+    }
+    # Vector with hazard rate ratios
+    df_hrr_mort_age  <- dplyr::select(df_hrr_mort_age, 
+                                        .data$Age, .data$Ratio)
+    
+    return(df_hrr_mort_age)
+  }
 #' Load all parameters
 #'
 #' \code{load_all_params} loads all parameters for the decision model from multiple sources and creates a list.
@@ -226,6 +244,7 @@ load_all_params <- function(l_params_init = NULL,
   
   # All-cause age-specific mortality from .csv file -------------------------
   v_r_mort_year_age <- load_mort_data(file_mort)
+  v_hr_mort_age <- load_exmort_data(file_exmort)
   
   l_params_all <- with(as.list(l_params_init), {
     
@@ -247,15 +266,19 @@ load_all_params <- function(l_params_init = NULL,
     
     # Filter for selected sexes, ages and years
     v_r_mort_year_age <- v_r_mort_year_age %>%
-      dplyr::filter(Age >= n_age_init & Age < n_age_max) %>%
+      dplyr::filter(Age >= (n_age_init-1) & Age < n_age_max) %>%
       dplyr::select(Rate) %>%
       as.matrix()
     
     # Compute the mortality rates 
-    v_r_mort_year_age_cycle <- c(rep(v_r_mort_year_age[1],1),
-                                     rep(v_r_mort_year_age[2],4),
-                                     rep(v_r_mort_year_age[3:length(v_r_mort_year_age)],each=5)
-                                     ) 
+    v_r_mort_year_age_cycle <- c(rep(v_r_mort_year_age[1],4),
+                                 rep(v_r_mort_year_age[2:length(v_r_mort_year_age)],each=5)
+                                ) 
+    # Excess mortality with drinking
+    v_hr_mort_age <- v_hr_mort_age %>%
+      dplyr::filter(Age >= n_age_init & Age < n_age_max) %>%
+      dplyr::select(Ratio)%>%
+      as.matrix()
     
     # Create list with all parameters -----------------------------------------
     l_params_all <- list(
@@ -269,6 +292,7 @@ load_all_params <- function(l_params_init = NULL,
       n_cycles_year = n_cycles_year,
       v_r_mort_year_age = v_r_mort_year_age,
       v_r_mort_year_age_cycle = v_r_mort_year_age_cycle,
+      v_hr_mort_age = v_hr_mort_age,
       v_wcc = v_wcc
     )
     return(l_params_all)
