@@ -26,12 +26,12 @@ with(as.list(l_params_all),{
   ct_trace_dt <- data.frame(Age=seq(n_age_init,n_age_max-1,by=1), ct_trace)
   colnames(ct_trace_dt) <- c("Age",v_names_states)
   ct_trace_dt_t <- melt(ct_trace_dt, id.vars="Age")
-  ct_trace_dt_t$type = 'continuous'
+  ct_trace_dt_t$type = 'Continuous'
 
   dt_trace_dt <- data.frame(Age=seq(n_age_init,n_age_max-1,by=1), dt_trace)
   colnames(dt_trace_dt) <- c("Age",v_names_states)
   dt_trace_dt_t <- melt(dt_trace_dt, id.vars="Age")
-  dt_trace_dt_t$type = 'discrete'
+  dt_trace_dt_t$type = 'Discrete'
   
   trace_all <- rbind(ct_trace_dt_t, dt_trace_dt_t)
   
@@ -46,22 +46,33 @@ with(as.list(l_params_all),{
   ct_prev <- cal_prev(ct_trace)
   dt_prev <- cal_prev(dt_trace)
   # Add labels of model type
-  ct_prev$type = 'continuous'
-  dt_prev$type = 'discrete'
+  ct_prev$type = 'Gold standard'
+  dt_prev$type = 'Traditional'
   
   prev_all <- rbind(ct_prev, dt_prev)
   
   ggplot(data = prev_all, aes(x=Age,y=Prev,fill=type))+
     geom_bar(position="dodge", stat="identity")+
-    ylab("Prevalence of drinkers")+
+    ylab("Age-specific prevalence of drinkers")+
     scale_y_continuous(limits=c(0,max(prev_all$Prev)+0.01), 
                                 breaks = seq(0, (max(prev_all$Prev)+0.01), by = 0.02), 
                                 expand = c(0,0))+
-    theme_bw()
-  ggsave("figures/prev_comparison.pdf")
+    theme_bw()+
+    theme(legend.position = c(0.8,0.9),
+          axis.text=element_text(size=12),
+          axis.title = element_text(size=14, face="bold"),
+          legend.text=element_text(size=12),
+          legend.title=element_text(size=14),
+          axis.text.x = element_text(angle=15))+
+    guides(fill=guide_legend(title="Transition matrix calculation"))
+  ggsave("figures/prev_comparison.pdf", width = 8, height=7)
   
-  ## 3. Input parameters
-  
+  ## 3. calculating bias
+  print(dt_prev$Prev - ct_prev$Prev)
+  print((dt_prev$Prev - ct_prev$Prev) * c(rep(4,13),29))
+  bias <- sum((dt_prev$Prev - ct_prev$Prev) * c(rep(4,13),29))
+  relativebias <- bias/sum(ct_prev$Prev * c(rep(4,13),29))
+  print(relativebias)
   })
 
 dt_trace_dt <- data.frame(dt_trace)
