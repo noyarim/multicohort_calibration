@@ -3,10 +3,17 @@ library(IMIS)
 library(matrixStats)
 
 ####################################################################
+######  Load target data  ######
+####################################################################
+source("R/00_data_prep.R")
+alc_targets <- prep_target()
+
+
+####################################################################
 ######  Load model as a function  ######
 ####################################################################
-source("markov model here")
-
+source("R/03_alcohol_model_functions.R")
+source("R/06_markov_outcome_calculations.R")
 
 ####################################################################
 ######  Specify calibration parameters  ######
@@ -19,12 +26,12 @@ n.resamp <- 1000
 
 # names and number of input parameters to be calibrated
 v.param.names <- c( #r_ND_CD: transition rate from ND to CD
-                   "r_ND_CD_16", "r_ND_CD_20",, "r_ND_CD_24","r_ND_CD_28",
+                   "r_ND_CD_16", "r_ND_CD_20","r_ND_CD_24","r_ND_CD_28",
                    "r_ND_CD_32","r_ND_CD_36","r_ND_CD_40","r_ND_CD_44",
                    "r_ND_CD_48","r_ND_CD_52","r_ND_CD_56","r_ND_CD_60",
                    "r_ND_CD_64","r_ND_CD_68","r_ND_CD_72", 
                    # r_CD_FD: transition rate from CD to FD
-                   "r_CD_FD_16", "r_CD_FD_20",, "r_CD_FD_24","r_CD_FD_28",
+                   "r_CD_FD_16", "r_CD_FD_20","r_CD_FD_24","r_CD_FD_28",
                    "r_CD_FD_32","r_CD_FD_36","r_CD_FD_40","r_CD_FD_44",
                    "r_CD_FD_48","r_CD_FD_52","r_CD_FD_56","r_CD_FD_60",
                    "r_CD_FD_64","r_CD_FD_68","r_CD_FD_72")
@@ -35,7 +42,7 @@ lb <- c(r = 0.0) # lower bound
 ub <- c(r = 1.0) # upper bound
 
 # number of calibration targets
-v.target.names <- c("Surv", "Prev", "PropSick")
+v.target.names <- c("Prev_CD", "Prev_ND", "Prev_FD")
 n.target <- length(v.target.names)
 
 ####################################################################
@@ -99,7 +106,7 @@ calc_prior(v.params = sample_prior(10))
 
 
 ###  Write log-likelihood and likelihood functions to pass to IMIS algorithm  ###
-calc_log_lik <- function(v.params){
+calc_log_lik <- function(v.params, bc_label){
   # par_vector: a vector (or matrix) of model parameters 
   if(is.null(dim(v.params))) { # If vector, change to matrix
     v.params <- t(v.params) 
@@ -110,29 +117,43 @@ calc_log_lik <- function(v.params){
   for(j in 1:n.samp) { # j=1
     jj <- tryCatch( { 
       ###   Include other parameters  ###
-      v.params.full <- cbind(v.params, xxxxx)
+      v.param.rest <- v.params %>% 
+        select(r_ND_CD_16, r_ND_CD_20,r_ND_CD_24,r_ND_CD_28,
+               r_ND_CD_32,r_ND_CD_36,r_ND_CD_40,r_ND_CD_44,
+               r_ND_CD_48,r_ND_CD_52,r_ND_CD_56,r_ND_CD_60,
+               r_ND_CD_64,r_ND_CD_68,r_ND_CD_72)
+      colnames(v.params.remaining) <- c("r_FD_CD_16", "r_FD_CD_20","r_FD_CD_24","r_FD_CD_28",
+                                        "r_FD_CD_32","r_FD_CD_36","r_FD_CD_40","r_FD_CD_44",
+                                        "r_FD_CD_48","r_FD_CD_52","r_FD_CD_56","r_FD_CD_60",
+                                        "r_FD_CD_64","r_FD_CD_68","r_FD_CD_72")
+      v.params.full <- cbind(v.params, v.params.rest)
       ###   Run model for parametr set "v.params" ###
-      model.res <- run_sick_sicker_markov(v.params.full[j, ])
+      model.mc <- run_drinkmc(v.params.full[j, ]) # markov chain
+      model.res <- cal_prev(model.mc)# model results
       
       ###  Calculate log-likelihood of model outputs to targets  ###
-      # TARGET 1: Survival ("Surv")
-      # log likelihood  
-      v.llik[j, 1] <- sum(dnorm(x = SickSicker.targets$Surv$value,
-                                mean = model.res$Surv,
-                                sd = SickSicker.targets$Surv$se,
-                                log = T))
-      # TARGET 2: Prevalence ("Prev")
+      # TARGET 1:  Prevalence of current drinkers ("Prev_CD")
       # log likelihood
-      v.llik[j, 2] <- sum(dnorm(x = SickSicker.targets$Prev$value,
-                                mean = model.res$Prev,
-                                sd = SickSicker.targets$Prev$se,
-                                log = T))
-      # TARGET 3: Proportion Sick+Sicker who are Sick
+      v.llik[j, 1] <- sum(log(dbeta(p = this_targets$Prev_CD,
+                                a = this_targets$N_CD * model.res$Prev_CD$Prev,
+                                b = this_targets$N_CD * (1-model.res$Prev_CD$Prev))
+                              )
+                          )
+      # TARGET 2: Prevalence of never drinkers in 2011 ("Prev_ND")
       # log likelihood
-      v.llik[j, 3] <- sum(dnorm(x = SickSicker.targets$PropSick$value,
-                                mean = model.res$PropSick,
-                                sd = SickSicker.targets$PropSick$se,
-                                log = T))
+      v.llik[j, 2] <- sum(log(dbeta(p = this_targets$Prev_ND,
+                                    a = this_targets$N_ND * model.res$Prev_ND$Prev,
+                                    b = this_targets$N_ND * (1-model.res$Prev_ND$Prev))
+                            )
+                          )
+      # TARGET 3: Prevalence of former drinkers in 2011 ("Prev_FD")
+      # log likelihood
+      v.llik[j, 3] <- sum(log(dbeta(p = this_targets$Prev_FD,
+                                    a = this_targets$N_FD * model.res$Prev_FD$Prev,
+                                    b = this_targets$N_FD * (1-model.res$Prev_FD$Prev))
+                            )
+                        )
+      
       # OVERALL 
       llik.overall[j] <- sum(v.llik[j, ])
     }, error = function(e) NA) 
@@ -161,30 +182,58 @@ calc_log_post(v.params = v.params.test)
 calc_log_post(v.params = sample_prior(10))
 
 
-###  Bayesian calibration using IMIS  ###
-# define three functions needed by IMIS: prior(x), likelihood(x), sample.prior(n)
-prior <- calc_prior
-likelihood <- calc_likelihood
-sample.prior <- sample_prior
+###  Write function to implement IMIS  ###
+calc_imis <- function(){
+  # define three functions needed by IMIS: prior(x), likelihood(x), sample.prior(n)
+  prior <- calc_prior
+  likelihood <- calc_likelihood
+  sample.prior <- sample_prior
+  
+  # birth cohort-specific target
+  
+  # run IMIS
+  fit.imis <- IMIS(B = 1000, # the incremental sample size at each iteration of IMIS
+                   B.re = n.resamp, # the desired posterior sample size
+                   number_k = 10, # the maximum number of iterations in IMIS
+                   D = 0)
+  
+  # obtain draws from posterior
+  m.calib.post <- fit.imis$resample
+  
+  # Calculate log-likelihood and posterior probability of each sample
+  m.calib.post <- cbind(m.calib.post, 
+                        "Log_likelihood" = calc_log_lik(m.calib.post[,v.param.names]),
+                        "Posterior_prob" = exp(calc_log_post(m.calib.post[,v.param.names])))
+  
+  # normalize posterior probability
+  m.calib.post[,"Posterior_prob"] <- m.calib.post[,"Posterior_prob"]/sum(m.calib.post[,"Posterior_prob"])
+  
+  # Calculate computation time
+  comp.time <- Sys.time() - t.init
+  
+  return(m.calib.post)
+}
 
-# run IMIS
-fit.imis <- IMIS(B = 1000, # the incremental sample size at each iteration of IMIS
-                 B.re = n.resamp, # the desired posterior sample size
-                 number_k = 10, # the maximum number of iterations in IMIS
-                 D = 0)
 
-# obtain draws from posterior
-m.calib.post <- fit.imis$resample
+###  Birth-cohort specific Bayesian calibration using IMIS  ###
+# list of birth cohorts (Age in 1993)
+bc_list <- c('0-4','4-8','8-12','12-16','16-20','20-24','24-28','28-32','32-36',
+             '36-40','40-44','44-48','48-52','52-56','56-60','60-64','64-68','68-72')
 
-# Calculate log-likelihood and posterior probability of each sample
-m.calib.post <- cbind(m.calib.post, 
-                      "Log_likelihood" = calc_log_lik(m.calib.post[,v.param.names]),
-                      "Posterior_prob" = exp(calc_log_post(m.calib.post[,v.param.names])))
+# list of birth cohort-specific calibration outcomes
+lst_calib <- list()
+for (this_bc in bc_list){
+  # Set birth-cohort specific calibration targets
+  this_targets = lapply(alc_targets, function(x){
+    x_sub <- x %>%
+      select(contains(this_bc))
+    return(x_sub)
+  })
+  
+  this_calib <- calc_imis(this_bc)
+  lst_calib <- append(lst_calib, this_calib)
+    
+}
 
-# normalize posterior probability
-m.calib.post[,"Posterior_prob"] <- m.calib.post[,"Posterior_prob"]/sum(m.calib.post[,"Posterior_prob"])
-
-# Calculate computation time
-comp.time <- Sys.time() - t.init
 
 
